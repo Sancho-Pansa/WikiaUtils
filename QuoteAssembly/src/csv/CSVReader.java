@@ -85,13 +85,14 @@ public class CSVReader {
 					permitCollection = false;
 				} else if(ch == '\r')
 					continue;
-				else if(ch == '\n')
+				else if(ch == '\n') {
 					break;
+				}
 				else
 					buf.append(ch);
 			}
 		}
-		
+		result.add(buf.toString());
 		return result;
 	}
 }
