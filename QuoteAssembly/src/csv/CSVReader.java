@@ -9,6 +9,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is CSV parser. Delimeters: ";"
+ * @author LemonadeCandy
+ *
+ */
 public class CSVReader {
 	private final char DELIMETER = ';';
 	private final char QUOTE = '"';
@@ -23,7 +28,11 @@ public class CSVReader {
 		filepath = Paths.get(path);
 	}
 	
-	public List<List<String>> readCSV(int cols) {
+	/**
+	 * Parses CSV and returns a List containing List of Strings
+	 * @return List of Lists of Strings with parsed elements
+	 */
+	public List<List<String>> readCSV() {
 		List<List<String>> table = new ArrayList<>();
 		try(BufferedReader bf = Files.newBufferedReader(filepath, Charset.forName("UTF-8"))) {
 			String line = bf.readLine(); // skip header
@@ -35,7 +44,7 @@ public class CSVReader {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(table.get(1));
+		
 		return table;
 	}
 	
