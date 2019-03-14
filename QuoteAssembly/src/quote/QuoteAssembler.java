@@ -1,9 +1,12 @@
 package quote;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import csv.CSVReader;
 
@@ -57,16 +60,42 @@ public class QuoteAssembler {
 		});
 		
 		// Начало игры
-		if (!startQuotes.isEmpty()) {
-			wikiText.append("\n== Начало матча ==\n");
-			startQuotes.stream().map(this::wrapIn).forEach(wikiText::append);
-		}
+		appendSection(wikiText, startQuotes, "Начало игры");
+		
 		// Атака
-		wikiText.append("\n== Атака ==\n");
-		attackQuotes.stream().map(this::wrapIn).forEach(wikiText::append);
-		System.out.println(wikiText.toString());
+		appendSection(wikiText, attackQuotes, "Атака");
+		
+		// Умения
+		appendSection(wikiText, abilityQuotes, "Использование умений");
+		
+		// Передвижение
+		appendSection(wikiText, movementQuotes, "Передвижение");
+		
+		// Шутки
+		appendSection(wikiText, jokes, "Шутки");
+		
+		// Насмешки
+		appendSection(wikiText, taunts, "Насмешки");
+		
+		// Убийства
+		appendSection(wikiText, kills, "Убийства");
+		
+		// При Возвращении
+		appendSection(wikiText, recall, "При {{si|Возвращение|Возвращении}}");
+		
+		// Другие фразы
+		appendSection(wikiText, otherQuotes, "Другие фразы");
+		
+		// Смех
+		appendSection(wikiText, laugh, "Смех");
+		
+		// Смерть
+		appendSection(wikiText, death, "Смерть");
+		
+		// Несортированное
+		appendSection(wikiText, unsortedQuotes, "Несортированное");
+		
 		return wikiText.toString();
-		//TODO: Завершить
 	}
 	
 	private void distributeQuotes() {		
@@ -112,10 +141,19 @@ public class QuoteAssembler {
 				return "Ошибка: число образов меньше числа файлов\n";
 			int last = soundFiles.length - 1;
 			for(int i = 0; i < last; i++) {
-				stroke += "{{фч|" + line.get(0) + soundFiles[i] + ".ogg}} ";
+				if(i > 0) {
+					stroke += "{{фч|" + line.get(0) + soundFiles[i] + ".ogg" +
+							"||" + line.get(0) + "|" + skins[i] + "}} ";
+				} else
+					stroke += "{{фч|" + line.get(0) + soundFiles[i] + ".ogg||"
+							+ line.get(0) + "|" + skins[i] + "}} ";
 			}
 			stroke += "{{фч|" + line.get(0) + soundFiles[last] + ".ogg|"
 					+ line.get(1);
+			if(last != 0) {
+				stroke += "|" + line.get(0) + "|" + skins[last];
+			}
+			
 			if(line.get(line.size() - 2).equals("Смех") ||
 					line.get(line.size() - 2).equals("Смерть") &&
 					line.get(1).startsWith("Предсмертн"))
@@ -123,5 +161,32 @@ public class QuoteAssembler {
 			stroke += "}}\n";
 		}
 		return stroke;
+	}
+	
+	private void appendSection(StringBuilder text, List<List<String>> section, String sectionName) {
+		if (!section.isEmpty()) {
+			text.append("\n== " + sectionName + " ==\n");
+			section.stream()
+				.filter(x -> x.get(x.size() - 1).equals("Нет"))
+				.map(this::wrapIn)
+				.forEach(text::append);
+			
+			Set<String> subSections = section.stream()
+				.map(x -> x.get(x.size() - 1))
+				.filter(x -> !x.equals("Нет"))
+				.distinct()
+				.collect(Collectors.toSet());
+			
+			if(subSections.size() > 0) {
+				subSections.forEach(x -> {
+					text.append(";")
+					.append(x + "\n");
+					section.stream()
+						.filter(y -> { return y.get(y.size() - 1).equals(x); })
+						.map(this::wrapIn)
+						.forEach(text::append);
+				});
+			}
+		}
 	}
 }
