@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +42,7 @@ public class ReplaceName {
 				return x;
 			})
 			.collect(Collectors.toList());
-			Files.write(newPath, lines, StandardCharsets.UTF_8);
+			Files.write(newPath, lines, Charset.forName("windows-1251"));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
